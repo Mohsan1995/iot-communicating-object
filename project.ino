@@ -1,38 +1,64 @@
-/* Constantes pour les broches */
-const byte TRIGGER_PIN = 3; // Broche TRIGGER
-const byte ECHO_PIN = 4;    // Broche ECHO
- 
-/* Constantes pour le timeout */
+#include <Servo.h>
+
+/* Const for pin */
+const byte TRIGGER_PIN = 3; // Pin TRIGGER
+const byte ECHO_PIN = 4;    // Pin ECHO
+const byte MONSERVO_PIN = 2;// Pin ENGIGNE
+
+/* Const fo pin RGB */
+const byte PIN_LED_R = 11;
+const byte PIN_LED_B = 10;
+const byte PIN_LED_G = 9;
+
+const float SOUND_SPEED = 340.0 / 1000;
+/* Const for timeout */
 const unsigned long MEASURE_TIMEOUT = 25000UL; // 25ms = ~8m à 340m/s
 
-/* Vitesse du son dans l'air en mm/us */
-const float SOUND_SPEED = 340.0 / 1000;
+int MAX_DIST_BEFORE_OPEN = 50;
+
+int distance_cm = 0;
+
+
+Servo monservo;  // crée l’objet pour contrôler le servomoteur
+
+/* Speed of the sound in the air in mm/us */
+
+
+void displayColor(byte r, byte g, byte b)
 
 void setup() {
   // put your setup code here, to run once:
-  /* Initialise le port série */
+ 
   Serial.begin(115200);
-
-   /* Initialise les broches */
+   /* Init pin for the sound wave*/
   pinMode(TRIGGER_PIN, OUTPUT);
   digitalWrite(TRIGGER_PIN, LOW); // La broche TRIGGER doit être à LOW au repos
   pinMode(ECHO_PIN, INPUT);
 
+  pinMode(PIN_LED_R, OUTPUT);
+  pinMode(PIN_LED_G, OUTPUT);
+  pinMode(PIN_LED_B, OUTPUT);
+  
+  monservo.write(0);
+  monservo.attach(MONSERVO_PIN);  // utilise la broche 9 pour le contrôle du servomoteur
+
+  displayColor(0, 0, 0);
+
 }
 
 void loop() {
-   /* 1. Lance une mesure de distance en envoyant une impulsion HIGH de 10µs sur la broche TRIGGER */
+   // 1. First Launc a sound from trigger for determine the distance
   digitalWrite(TRIGGER_PIN, HIGH);
   delayMicroseconds(10);
   digitalWrite(TRIGGER_PIN, LOW);
   
-  /* 2. Mesure le temps entre l'envoi de l'impulsion ultrasonique et son écho (si il existe) */
+  // 2. Evaluate the time between the trigger of the sound and his echo
   long measure = pulseIn(ECHO_PIN, HIGH, MEASURE_TIMEOUT);
    
-  /* 3. Calcul la distance à partir du temps mesuré */
+  // 3. Calculate the distance between  
   float distance_mm = measure / 2.0 * SOUND_SPEED;
    
-  /* Affiche les résultats en mm, cm et m */
+  //Show the distance in mm,cm and m
   Serial.print(F("Distance: "));
   Serial.print(distance_mm);
   Serial.print(F("mm ("));
@@ -40,8 +66,23 @@ void loop() {
   Serial.print(F("cm, "));
   Serial.print(distance_mm / 1000.0, 2);
   Serial.println(F("m)"));
-   
-  /* Délai d'attente pour éviter d'afficher trop de résultats à la seconde */
-  delay(500);
 
+  distance_cm = distance_mm / 10.0;
+  Serial.print(distance_cm);
+  if(distance_cm >= 1 && distance_cm < MAX_DIST_BEFORE_OPEN){
+    monservo.write(90); 
+    displayColor(0, 255, 0);
+  }else{
+    monservo.write(0);
+    displayColor(255, 0, 0);
+  }
+  
+  delay(100);
+
+}
+
+void displayColor(byte r, byte g, byte b) {
+  analogWrite(PIN_LED_R, r);
+  analogWrite(PIN_LED_G, g);
+  analogWrite(PIN_LED_B, b);
 }
