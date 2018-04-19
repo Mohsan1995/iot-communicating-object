@@ -14,6 +14,18 @@
 
 
     <string name="main_act_options_label">Status</string>
+    <string name="main_act_options_detector">Detector</string>
+    <string name="main_act_options_color_label">Color is</string>
+    <string name="main_act_options_door_label">Door is</string>
     <string name="main_act_options_door_opened">OPENED</string>
     <string name="main_act_options_door_closed">CLOSED</string>
+
+
+    <string name="main_act_settings_label">Settings</string>
+    <string name="main_act_settings_range">Range detector</string>
+    <string name="main_act_settings_range_desc">Distance to trigger open door (in cm)</string>
+
+    <string name="main_act_settings_colors">Colors</string>
+    <string name="main_act_settings_colors_detect">If detect</string>
+    <string name="main_act_settings_colors_undetect">If not detect</string>
 </resources>

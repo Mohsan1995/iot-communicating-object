@@ -62,7 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="visible">
 
 
             <TextView
@@ -88,13 +88,12 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Detector" />
+                        android:text="@string/main_act_options_detector" />
 
                     <TextView
                         android:id="@+id/main_act_text_current_distance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="28cm"
                         android:textSize="20sp" />
                 </LinearLayout>
 
@@ -114,7 +113,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Color is" />
+                        android:text="@string/main_act_options_color_label" />
 
                     <FrameLayout
                         android:id="@+id/main_act_frame_current_color"
@@ -138,13 +137,12 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Door is" />
+                        android:text="@string/main_act_options_door_label" />
 
                     <TextView
                         android:id="@+id/main_act_text_current_door"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="OPEN"
                         android:textSize="20sp" />
                 </LinearLayout>
 
@@ -155,40 +153,54 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
-                android:text="Settings"
+                android:text="@string/main_act_settings_label"
                 android:textSize="25sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Range detector"
+                android:text="@string/main_act_settings_range"
                 android:textSize="20sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Distance to trigger open door (in cm)" />
+                android:text="@string/main_act_settings_range_desc" />
 
 
-            <LinearLayout
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_height="30dp">
 
-                <SeekBar
-                    android:id="@+id/main_act_seek_settings_distance_trigger"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:max="400" />
+                    android:orientation="horizontal"
+                    android:layout_gravity="center">
 
-                <TextView
-                    android:id="@+id/main_act_text_settings_distance_trigger"
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal" />
+                    <SeekBar
+                        android:id="@+id/main_act_seek_settings_distance_trigger"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="400" />
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/main_act_text_settings_distance_trigger"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal" />
+
+                </LinearLayout>
+
+
+                <ProgressBar
+                    android:id="@+id/main_act_progress_distance_trigger"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone"/>
+            </FrameLayout>
 
 
             <TextView
@@ -213,13 +225,23 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="If detect" />
+                        android:text="@string/main_act_settings_colors_detect" />
 
                     <FrameLayout
-                        android:id="@+id/main_act_frame_color_detected"
                         android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:background="@android:color/holo_orange_dark" />
+                        android:layout_height="50dp">
+                        <FrameLayout
+                            android:id="@+id/main_act_frame_color_detected"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:background="@android:color/holo_orange_dark" />
+
+                        <ProgressBar
+                            android:id="@+id/main_act_progress_detected"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="10dp"/>
+                    </FrameLayout>
                 </LinearLayout>
 
                 <FrameLayout
@@ -237,13 +259,26 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="If not detect" />
+                        android:text="@string/main_act_settings_colors_undetect" />
 
                     <FrameLayout
-                        android:id="@+id/main_act_frame_color_undetected"
                         android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:background="@android:color/holo_orange_dark" />
+                        android:layout_height="50dp">
+
+                        <FrameLayout
+                            android:id="@+id/main_act_frame_color_undetected"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@android:color/holo_orange_dark" />
+
+                        <ProgressBar
+                            android:id="@+id/main_act_progress_undetected"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="10dp"
+                            android:visibility="gone"/>
+
+                    </FrameLayout>
                 </LinearLayout>
 
             </LinearLayout>

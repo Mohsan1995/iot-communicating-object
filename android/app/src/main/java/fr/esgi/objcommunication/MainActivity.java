@@ -62,6 +62,8 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
 
     @BindView(R.id.main_act_seek_settings_distance_trigger)
     SeekBar seekDistanceTrigger;
+    @BindView(R.id.main_act_progress_distance_trigger)
+    View progressDistanceTrigger;
 
     @BindView(R.id.main_act_text_settings_distance_trigger)
     TextView textDistanceTrigger;
@@ -69,9 +71,13 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
 
     @BindView(R.id.main_act_frame_color_detected)
     FrameLayout frameColorDetected;
+    @BindView(R.id.main_act_progress_detected)
+    View progressDetected;
 
     @BindView(R.id.main_act_frame_color_undetected)
     FrameLayout frameColorUndetected;
+    @BindView(R.id.main_act_progress_undetected)
+    View progressUndetected;
 
 
     final int RECEIVE_MESSAGE = 1;
@@ -136,6 +142,7 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+                progressDistanceTrigger.setVisibility(View.VISIBLE);
                 connectedThread.write("DT#" + seekBar.getProgress());
             }
         });
@@ -233,10 +240,12 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
         switch (dialogId) {
             case DIALOG_ID_DETECTED:
                 connectedThread.write("CD#" + hex.substring(2));
+                progressDetected.setVisibility(View.VISIBLE);
                 break;
 
             case DIALOG_ID_UNDETECTED:
                 connectedThread.write("CU#" + hex.substring(2));
+                progressUndetected.setVisibility(View.VISIBLE);
                 break;
         }
     }
@@ -271,6 +280,7 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
             int i = Integer.valueOf(arg);
             seekDistanceTrigger.setProgress(i);
             textDistanceTrigger.setText(String.valueOf(i) + " cm");
+            progressDistanceTrigger.setVisibility(View.GONE);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -286,12 +296,14 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
         colorDetected = Color.parseColor("#" + arg);
         frameColorDetected.setBackgroundColor(colorDetected);
         invalidateCurrentStat();
+        progressDetected.setVisibility(View.GONE);
     }
 
     private void onCommandColorUndetectedReceived(String arg) {
         colorUndetected = Color.parseColor("#" + arg);
         frameColorUndetected.setBackgroundColor(colorUndetected);
         invalidateCurrentStat();
+        progressDetected.setVisibility(View.GONE);
     }
 
     private void onCommandDistanceReceived(String arg) {
@@ -373,4 +385,7 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
             }
         }
     }
+
+
+
 }
