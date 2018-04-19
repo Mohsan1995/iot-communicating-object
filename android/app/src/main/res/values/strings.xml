@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">ObjCommunication</string>
+
+    <string name="default_mac">98:D3:31:FD:26:E2</string>
+
+    <string name="main_act_btn_connect">CONNECT</string>
+    <string name="main_act_btn_disconnect">DISCONNECT</string>
+
+    <string name="main_act_bt_status_label">BLUETOOTH STATUS: </string>
+    <string name="main_act_bt_status_connecting">CONNECTING...</string>
+    <string name="main_act_bt_status_connected">CONNECTED</string>
+    <string name="main_act_bt_status_disconnected">DISCONNECTED</string>
+    <string name="main_act_bt_status_none">NONE</string>
+
+
+    <string name="main_act_options_label">Status</string>
+    <string name="main_act_options_door_opened">OPENED</string>
+    <string name="main_act_options_door_closed">CLOSED</string>
+</resources>
