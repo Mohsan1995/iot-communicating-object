@@ -33,7 +33,6 @@ import butterknife.OnClick;
 
 public class MainActivity extends Activity implements ColorPickerDialogListener {
     private static final String TAG = "MainActivity";
-
     private static final int DIALOG_ID_DETECTED = 42;
     private static final int DIALOG_ID_UNDETECTED = 43;
 
@@ -88,7 +87,6 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
     private @ColorInt int colorUndetected;
     private boolean doorOpened;
 
-    private int btState = 0;
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     private ConnectedThread connectedThread;
@@ -156,19 +154,20 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
             Log.d(TAG, "createInsecureRfcomm");
         } catch (Exception e) {
             Log.e(TAG, "createInsecureRfcomm", e);
-            Toast.makeText(getApplicationContext(), "Unable to create Insecure RFComm Connection", Toast.LENGTH_LONG).show();
+            toast("Unable to create Insecure RFComm Connection");
             try {
                 btSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
                 Log.d(TAG, "createRfcomm");
             } catch (Exception e2) {
                 Log.e(TAG, "createRfcomm", e);
-                Toast.makeText(getApplicationContext(), "Unable to create RFComm Connection", Toast.LENGTH_LONG).show();
+                toast("Unable to create RFComm Connection");
                 return;
             }
         }
         btAdapter.cancelDiscovery();
 
         bluetoothStatus.setText(R.string.main_act_bt_status_connecting);
+        //Start Bluetooth socket
         try {
             btSocket.connect();
             bluetoothStatus.setText(R.string.main_act_bt_status_connected);
@@ -180,13 +179,15 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
             progressUndetected.setVisibility(View.VISIBLE);
         } catch (IOException e) {
             Log.e(TAG, "connect", e);
-            Toast.makeText(getApplicationContext(), "Unable to connect -> Disconnecting", Toast.LENGTH_LONG).show();
+            toast("Unable to connect -> Disconnecting");
             disconnect();
         }
 
+        //Start Thread for receive and emit byte
         connectedThread = new ConnectedThread(btSocket);
         connectedThread.start();
 
+        //Send INIT command to receive current settings(colors and range detector)
         connectedThread.write("INIT");
     }
 
@@ -197,7 +198,7 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
                 bluetoothStatus.setText(R.string.main_act_bt_status_disconnected);
             } catch (Exception e) {
                 Log.e(TAG, "disconnect", e);
-                Toast.makeText(getApplicationContext(), "Unable to disconnect", Toast.LENGTH_LONG).show();
+                toast("Unable to disconnect");
             }
         }
         linearRoot.setVisibility(View.GONE);
@@ -207,6 +208,7 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
 
     @OnClick(R.id.main_act_frame_color_detected)
     void setColorDetected() {
+        //Show color picker dialog for set the Detected color
         ColorPickerDialog.newBuilder()
                 .setDialogType(ColorPickerDialog.TYPE_CUSTOM)
                 .setAllowPresets(false)
@@ -218,6 +220,7 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
 
     @OnClick(R.id.main_act_frame_color_undetected)
     void setColorUndetected() {
+        //Show color picker dialog for set the Undetected color
         ColorPickerDialog.newBuilder()
                 .setDialogType(ColorPickerDialog.TYPE_CUSTOM)
                 .setAllowPresets(false)
@@ -230,7 +233,8 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
     @Override
     public void onColorSelected(int dialogId, int color) {
         String hex = Integer.toHexString(color);
-        @ColorInt int colorInt = Color.parseColor("#" + hex);
+        //Set new color via bluetooth and show progress bar
+        //The Arduino will send back the new color
         switch (dialogId) {
             case DIALOG_ID_DETECTED:
                 connectedThread.write("CD#" + hex.substring(2));
@@ -250,6 +254,7 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
     }
 
     private void onMessageReceived(String s) {
+        //On command receive from Arduino
         Log.d(TAG, "onMessageReceived    " + s);
         String[] strings = s.split("#");
         if (strings.length == 2) {
@@ -270,6 +275,7 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
     }
 
     private void onCommandDistanceTriggerReceived(String arg) {
+        //Update the new distance trigger
         try {
             int i = Integer.valueOf(arg);
             seekDistanceTrigger.setProgress(i);
@@ -281,12 +287,14 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
     }
 
     private void onCommandDoorReceived(String arg) {
+        //Update the current door state
         boolean closed = arg.equalsIgnoreCase("0");
         doorOpened = !closed;
         invalidateCurrentStat();
     }
 
     private void onCommandColorDetectedReceived(String arg) {
+        //Update the Detected Color and hide progress
         colorDetected = Color.parseColor("#" + arg);
         frameColorDetected.setBackgroundColor(colorDetected);
         invalidateCurrentStat();
@@ -294,6 +302,7 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
     }
 
     private void onCommandColorUndetectedReceived(String arg) {
+        //Update the Undetected Color and hide progress
         colorUndetected = Color.parseColor("#" + arg);
         frameColorUndetected.setBackgroundColor(colorUndetected);
         invalidateCurrentStat();
@@ -301,6 +310,7 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
     }
 
     private void onCommandDistanceReceived(String arg) {
+        //Update the current distance
         currentDistance.setText(arg);
     }
 
@@ -316,24 +326,13 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
     }
 
     private void checkBTState() {
-        // Check for Bluetooth support and then check to make sure it is turned on
-        // Emulator doesn't support Bluetooth and will return null
         if (btAdapter == null) {
-            errorExit("Fatal Error", "Bluetooth not support");
-        } else {
-            if (btAdapter.isEnabled()) {
-                Log.d(TAG, "...Bluetooth ON...");
-            } else {
-                //Prompt user to turn on Bluetooth
-                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBtIntent, 1);
-            }
+            toast("Bluetooth not support");
+        } else if (!btAdapter.isEnabled()) {
+            //Start intent for activate Bluetooth
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, 1);
         }
-    }
-
-    private void errorExit(String title, String message) {
-        Toast.makeText(getBaseContext(), title + " - " + message, Toast.LENGTH_LONG).show();
-        finish();
     }
 
     private class ConnectedThread extends Thread {
@@ -359,6 +358,9 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
             byte[] buffer = new byte[256];
             int bytes;
 
+            //Read byte from Bluetooth
+            //All messages received and sent will be format as
+            //@CMD:ARG$
             while (true) {
                 try {
                     bytes = mmInStream.read(buffer);
@@ -395,6 +397,7 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
         }
     }
 
-
-
+    private void toast(String s) {
+        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+    }
 }
