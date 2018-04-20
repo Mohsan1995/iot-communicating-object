@@ -14,8 +14,8 @@ On peut grâce à l'application mobile :
 Les composants principaux utilisés sont :
 
  - Arduino Leonardo
- - Capteur d'ultrason HC-SR04
- -  Bluetooth HC-06
+ - Capteur d'ultrason DYP-ME007V1
+ - Bluetooth HC-06
  - Une led RGB
  - Servomoteur chinois "9 grammes"
 

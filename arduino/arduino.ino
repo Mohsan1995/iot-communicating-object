@@ -15,6 +15,7 @@ const float SOUND_SPEED = 340.0 / 1000;
 /* Const for timeout */
 const unsigned long MEASURE_TIMEOUT = 25000UL; // 25ms = ~8m à 340m/s
 
+
 int MAX_DIST_BEFORE_OPEN = 50;
 
 int color_detect_r = 0;
@@ -27,20 +28,22 @@ int color_undetect_b = 0;
 
 int distance_cm = 0;
 
-
-Servo monservo;  // crée l’objet pour contrôler le servomoteur
-
-/* Speed of the sound in the air in mm/us */
-
-
 String bluetoothInput = "";
 boolean b = false;
-
 
 boolean doorOpen = false;
 
 
+Servo monservo;  // Object for control servomoteur
+
+/* Speed of the sound in the air in mm/us */
+
+
 void displayColor(byte r, byte g, byte b);
+void onBluetoothIncomingMessage(String msg);
+void writeToBT(String s);
+void invalideColor();
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -125,6 +128,10 @@ void loop() {
   delay(300);
 }
 
+/**
+ * Function use for display color to the led
+ * 
+ */
 void displayColor(byte r, byte g, byte b) {
   analogWrite(PIN_LED_R, r);
   analogWrite(PIN_LED_G, g);
@@ -132,7 +139,9 @@ void displayColor(byte r, byte g, byte b) {
 }
 
 
-
+/**
+ * Function use for send data to bluetooth comp
+ */
 void writeToBT(String s) {
   Serial.print("Write to BT: ");
   Serial.println(s);
