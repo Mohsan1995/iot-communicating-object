@@ -387,7 +387,7 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
 
         public void write(String message) {
             Log.d(TAG, "Data to send: " + message);
-            message = "@" + message + "@";
+            message = "@" + message + "$";
             byte[] msgBuffer = message.getBytes();
             try {
                 mmOutStream.write(msgBuffer);

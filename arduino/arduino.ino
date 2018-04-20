@@ -74,14 +74,9 @@ void loop() {
   if (Serial1.available()) {
     char c = (char)Serial1.read();
     if (c == '@') {
-      if (b) {
-        onBluetoothIncomingMessage(bluetoothInput);
-        bluetoothInput = "";
-        b = false;
-      } else {
-        bluetoothInput = "";
-        b = true;
-      }
+      bluetoothInput = "";
+    } else if (c == '$') {
+      onBluetoothIncomingMessage(bluetoothInput);
     } else {
       bluetoothInput += String(c);
     }
