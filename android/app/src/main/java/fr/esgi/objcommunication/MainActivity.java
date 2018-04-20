@@ -83,8 +83,6 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
     final int RECEIVE_MESSAGE = 1;
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
-    private StringBuilder stringBuilder = null;
-
 
     private @ColorInt int colorDetected;
     private @ColorInt int colorUndetected;
@@ -94,7 +92,7 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     private ConnectedThread connectedThread;
-    private Handler h;
+    private Handler handler;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -102,26 +100,12 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        h = new Handler() {
+        handler = new Handler() {
 
             @Override
             public void handleMessage(android.os.Message msg) {
                 if (msg.what == RECEIVE_MESSAGE) {
-                    byte[] readBuf = (byte[]) msg.obj;
-                    String strIncom = new String(readBuf, 0, msg.arg1);
-                    for (char c : strIncom.toCharArray()) {
-                        if (c == '@') {
-                            stringBuilder = new StringBuilder();
-                        } else if (c == '$') {
-                            if (stringBuilder != null) {
-                                onMessageReceived(stringBuilder.toString());
-                            }
-                        } else {
-                            if (stringBuilder != null) {
-                                stringBuilder.append(c);
-                            }
-                        }
-                    }
+                    onMessageReceived((String) msg.obj);
                 }
             }
         };
@@ -146,6 +130,12 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
                 connectedThread.write("DT#" + seekBar.getProgress());
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacksAndMessages(null);
     }
 
     @OnClick(R.id.main_act_btn_connect)
@@ -184,6 +174,10 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
             bluetoothStatus.setText(R.string.main_act_bt_status_connected);
             btnConnect.setText(R.string.main_act_btn_disconnect);
             linearRoot.setVisibility(View.VISIBLE);
+
+            progressDistanceTrigger.setVisibility(View.VISIBLE);
+            progressDetected.setVisibility(View.VISIBLE);
+            progressUndetected.setVisibility(View.VISIBLE);
         } catch (IOException e) {
             Log.e(TAG, "connect", e);
             Toast.makeText(getApplicationContext(), "Unable to connect -> Disconnecting", Toast.LENGTH_LONG).show();
@@ -303,7 +297,7 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
         colorUndetected = Color.parseColor("#" + arg);
         frameColorUndetected.setBackgroundColor(colorUndetected);
         invalidateCurrentStat();
-        progressDetected.setVisibility(View.GONE);
+        progressUndetected.setVisibility(View.GONE);
     }
 
     private void onCommandDistanceReceived(String arg) {
@@ -346,6 +340,8 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
 
+        private StringBuilder stringBuilder = null;
+
         public ConnectedThread(BluetoothSocket socket) {
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
@@ -366,14 +362,27 @@ public class MainActivity extends Activity implements ColorPickerDialogListener 
             while (true) {
                 try {
                     bytes = mmInStream.read(buffer);
-                    h.obtainMessage(RECEIVE_MESSAGE, bytes, -1, buffer).sendToTarget();
+                    String strIncom = new String(buffer, 0, bytes);
+                    for (char c : strIncom.toCharArray()) {
+                        if (c == '@') {
+                            stringBuilder = new StringBuilder();
+                        } else if (c == '$') {
+                            if (stringBuilder != null) {
+                                handler.obtainMessage(RECEIVE_MESSAGE, -1, -1, stringBuilder.toString()).sendToTarget();
+                            }
+                        } else {
+                            if (stringBuilder != null) {
+                                stringBuilder.append(c);
+                            }
+                        }
+                    }
                 } catch (IOException e) {
+                    e.printStackTrace();
                     break;
                 }
             }
         }
 
-        /* Call this from the main activity to send data to the remote device */
         public void write(String message) {
             Log.d(TAG, "Data to send: " + message);
             message = "@" + message + "@";

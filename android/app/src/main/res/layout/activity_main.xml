@@ -62,7 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="visible">
+            android:visibility="gone">
 
 
             <TextView
@@ -175,8 +175,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="center">
+                    android:layout_gravity="center"
+                    android:orientation="horizontal">
 
                     <SeekBar
                         android:id="@+id/main_act_seek_settings_distance_trigger"
@@ -199,7 +199,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_gravity="center"
-                    android:visibility="gone"/>
+                    android:visibility="gone" />
             </FrameLayout>
 
 
@@ -230,6 +230,7 @@
                     <FrameLayout
                         android:layout_width="50dp"
                         android:layout_height="50dp">
+
                         <FrameLayout
                             android:id="@+id/main_act_frame_color_detected"
                             android:layout_width="50dp"
@@ -240,7 +241,7 @@
                             android:id="@+id/main_act_progress_detected"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:padding="10dp"/>
+                            android:padding="10dp" />
                     </FrameLayout>
                 </LinearLayout>
 
@@ -276,7 +277,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:padding="10dp"
-                            android:visibility="gone"/>
+                            android:visibility="gone" />
 
                     </FrameLayout>
                 </LinearLayout>
